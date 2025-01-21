@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Load .env file
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# Function to set configuration keys
+set_config() {
+    local key_name=$1
+    local key_value=$2
+    if [ -z "$key_name" ] || [ -z "$key_value" ]; then
+        echo "Usage: git-ai-commit --set-<key> <value>"
+        exit 1
+    fi
+    echo "${key_name}=${key_value}" >> .env
+    echo "Configuration key saved to .env."
+}
+
+# Function to generate commit message using GPT
+generate_commit_message_gpt() {
+    local changes=$(git diff)
+
+    if [ -z "$changes" ]; then
+        echo "No changes found. Please make changes before running this command."
+        exit 1
+    fi
+
+    if [ -z "$CHATGPT_API_KEY" ]; then
+        echo "CHATGPT_API_KEY not set. Use git-ai-commit --set-chatgpt-key=<key> to set it."
+        exit 1
+    fi
+
+    # Escape changes for JSON
+    local escaped_changes=$(echo "$changes" | jq -Rs .)
+
+    # Define JSON payload
+    local json_payload=$(jq -n --arg changes "$escaped_changes" '{
+        model: "gpt-4",
+        messages: [
+            {role: "system", content: "You are a helpful assistant for generating concise and meaningful git commit messages. Use prefixes like fix:, refactor:, docs:, etc. Keep the headline short and lowercase, and write a descriptive body."},
+            {role: "user", content: "Generate a git commit message based on these changes: \($changes)"}
+        ]
+    }')
+
+    # Send API request
+    local response=$(curl -s -X POST \
+        -H "Authorization: Bearer $CHATGPT_API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "$json_payload" \
+        https://api.openai.com/v1/chat/completions)
+
+    local message=$(echo "$response" | jq -r '.choices[0].message.content // empty')
+
+    if [ -z "$message" ]; then
+        echo "Error: Unable to generate a commit message. Check the API response." >&2
+        exit 1
+    fi
+
+    # Wrap the body of the commit message at 100 characters
+    local wrapped_message=$(echo "$message" | fold -s -w 100)
+
+    echo "$wrapped_message"
+}
+
+# Main function to handle commit logic
+perform_commit() {
+    # Check if API key is set
+    if [ -z "$CHATGPT_API_KEY" ]; then
+        echo "CHATGPT_API_KEY not set. Use git-ai-commit --set-chatgpt-key=<key> to set it."
+        exit 1
+    fi
+
+    # Check for unstaged or staged changes
+    if [ -z "$(git diff)" ] && [ -z "$(git diff --cached)" ]; then
+        echo "No changes found. Please make or stage changes before running this command."
+        exit 1
+    fi
+
+    local message=$(generate_commit_message_gpt)
+
+    # Create a temporary file for the commit message
+    local temp_file
+    temp_file=$(mktemp)
+    echo "$message" > "$temp_file"
+
+    # Open the editor with the message pre-filled
+    git commit -a --edit --file="$temp_file"
+
+    # Clean up the temporary file
+    rm -f "$temp_file"
+}
+
+# Parse command-line arguments
+if [[ "$1" == "--set-chatgpt-key" ]]; then
+    set_config "CHATGPT_API_KEY" "$2"
+elif [[ "$1" == "commit" ]]; then
+    perform_commit
+else
+    echo "Usage:"
+    echo "  git-ai-commit --set-chatgpt-key <key>   Set the ChatGPT API key."
+    echo "  git-ai-commit commit                   Generate and apply an AI commit message."
+fi
