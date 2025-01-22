@@ -2,7 +2,8 @@
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/dehenne/git-ai-commit)
 ![GitHub](https://img.shields.io/github/license/dehenne/git-ai-commit)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dehenne/git-ai-commit/ci.yml)
+![Open Issues](https://img.shields.io/github/issues/dehenne/git-ai-commit)
+![Language](https://img.shields.io/github/languages/top/dehenne/git-ai-commit)
 
 `git-ai-commit` integrates AI-powered commit message generation into your Git workflow. 
 It leverages OpenAI's GPT-4 model to create concise and meaningful commit messages based on your staged or unstaged changes.
