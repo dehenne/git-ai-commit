@@ -1,8 +1,8 @@
 # git-ai-commit
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/your-repo/git-ai-commit)
-![GitHub](https://img.shields.io/github/license/your-repo/git-ai-commit)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/your-repo/git-ai-commit/ci.yml)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/dehenne/git-ai-commit)
+![GitHub](https://img.shields.io/github/license/dehenne/git-ai-commit)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dehenne/git-ai-commit/ci.yml)
 
 `git-ai-commit` integrates AI-powered commit message generation into your Git workflow. 
 It leverages OpenAI's GPT-4 model to create concise and meaningful commit messages based on your staged or unstaged changes.
