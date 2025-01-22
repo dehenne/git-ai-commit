@@ -1,11 +1,16 @@
 # git-ai-commit
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/your-repo/git-ai-commit)
+![GitHub](https://img.shields.io/github/license/your-repo/git-ai-commit)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/your-repo/git-ai-commit/ci.yml)
+
 `git-ai-commit` integrates AI-powered commit message generation into your Git workflow. 
 It leverages OpenAI's GPT-4 model to create concise and meaningful commit messages based on your staged or unstaged changes.
 
 ## Features
 - **AI-Generated Commit Messages**: Automatically generate meaningful commit messages with a professional format.
-- **Customizable Commit Templates**: Uses prefixes like `fix:`, `refactor:`, `docs:` and ensures proper structure for both the headline and body.
+- **Customizable Commit Templates**: Uses prefixes like `fix:`, `refactor:`, `docs:`, and ensures proper structure for both the headline and body.
+- **Seamless Git Integration**: Supports standard Git commit parameters like `-a`, `-m`, and file-specific commits.
 - **Editor Integration**: Opens the Git editor with a pre-filled commit message for manual review and edits.
 
 ## Prerequisites
@@ -34,7 +39,7 @@ It leverages OpenAI's GPT-4 model to create concise and meaningful commit messag
    ```bash
    git-ai-commit --set-chatgpt-key YOUR_API_KEY
    ```
-   This stores the API key in a `.env` file within the current directory.
+   This stores the API key in a `.env` file within the home directory of the current user.
 
 2. Verify the setup by running:
    ```bash
@@ -43,23 +48,33 @@ It leverages OpenAI's GPT-4 model to create concise and meaningful commit messag
 
 ## Usage
 
-### Generate and Apply a Commit Message
+### Basic Usage
 
-1. Stage your changes (or let the script handle unstaged changes):
+`git-ai-commit` supports standard Git commit options. Examples:
+
+1. Stage all changes and generate a commit message:
    ```bash
-   git add .
+   git-ai-commit -a
    ```
 
-2. Run the following command to generate a commit message:
+2. Commit specific files with a generated commit message:
    ```bash
-   git-ai-commit commit
+   git-ai-commit file1.txt file2.txt
+   ```
+
+3. Commit with a custom message:
+   ```bash
+   git-ai-commit -m "fix: updated README"
+   ```
+
+4. Generate a commit message but review and edit it in the editor:
+   ```bash
+   git-ai-commit -a
    ```
    The script will:
    - Analyze your changes.
    - Generate a commit message with a formatted headline and body.
    - Open your editor with the pre-filled commit message.
-
-3. Review and edit the commit message in the editor. Save and close the editor to complete the commit.
 
 ### Example Commit Message Format
 
@@ -84,7 +99,7 @@ sudo rm /usr/local/bin/git-ai-commit
 ```
 Also, remove the `.env` file if it exists:
 ```bash
-rm .env
+rm $HOME/.git-ai-commit.env
 ```
 
 ## Contributing
